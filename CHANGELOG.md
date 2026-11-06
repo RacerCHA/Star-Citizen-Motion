@@ -1,5 +1,15 @@
 # Changelog
 
+## Preset v0.3 Soft — 2026-11-07
+
+Preset-only revision; application remains 0.2.0.
+
+- Separate AB9 profile UUID; v0.2 preserved.
+- Stick Shaker intensity 24 → 6 (25% of previous).
+- Directional effect strength settings reduced to approximately 70%, with integer rounding.
+- Activation thresholds, frequency, base centering/damping, weapons and engine vibration unchanged.
+- Prepared from the published v0.2 preset; local import was not possible because PC tooling failed to initialize.
+
 ## 0.2.0 — 2026-11-07
 
 - Independent SimHub and MOZA switches sharing one live receiver.

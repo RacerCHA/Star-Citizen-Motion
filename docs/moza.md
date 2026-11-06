@@ -5,7 +5,7 @@ The optional MOZA output uses the text protocol of MOZA's installed DCS exporter
 ## Start and stop
 
 - Launch `StarCitizenTelemetry.exe` before Star Citizen. SimHub starts enabled; MOZA requires its separate button on each app launch.
-- Load `presets/StarCitizen-AB9-v0.2.preset` in Cockpit: Local Preset → Import → Import → Load Now. It targets AB9 / DCS World / A-10C II / Telemetry FFB.
+- Load `presets/StarCitizen-AB9-v0.3-Soft.preset` in Cockpit: Local Preset → Import → Import → Load Now. It targets AB9 / DCS World / A-10C II / Telemetry FFB.
 - Enable MOZA in the lightning app. It starts its own `DCS World/bin/DCS.exe`. Disable MOZA to stop that helper while keeping the game connection and SimHub alive.
 - Do not run the Elite bridge or the actual DCS simultaneously: both use the same process identity and TCP channel. The app refuses this conflict and never terminates another DCS process.
 - Cockpit needs its DCS integration configured to connect locally. The tested PC uses TCP **3476**, confirmed in `Saved Games/DCS/Scripts/MOZA/MOZA.lua`. MOZA's bundled default may be **1234**. Match `MozaTcpPort` to the port in your configured export script; do not replace existing Elite scripts unnecessarily. Configuration on a fresh Cockpit install without any existing DCS integration has not been validated.
@@ -39,7 +39,26 @@ The 650 m/s point is a configurable feel reference, **not a hard maximum Star Ci
 
 The recorded Weapon event contains subtype values 0/1/2 whose exact correspondence has not been verified. They all drive the gun-fire cue rather than inventing ammunition or missile classifications. The frequent Recoil event (13) is not mixed into acceleration: its vector semantics are not yet verified, and doing so could double-count a force. Other unsupported events remain observable internally but do not fabricate DCS controls.
 
-## Preset
+## Preset v0.3 Soft — 2026-11-07
+
+This is a new preset UUID, derived from v0.2 after the user reported working live feedback but an uncomfortable Stick Shaker and excessive directional forces. The bridge version and telemetry conversion are unchanged. Import **StarCitizen-AB9-v0.3-Soft.preset**, then choose **Load Now**. The v0.2 preset remains available.
+
+| Setting | v0.2 | v0.3 Soft |
+|---|---:|---:|
+| Stick Shaker intensity | 24 | 6 |
+| G Force intensity | 30 | 21 |
+| Deceleration maximum force | 25 | 18 |
+| Aileron stick pressure | 32 | 22 |
+| Elevator stick pressure | 29 | 20 |
+| Dynamic Pressure effect intensity | 24 | 17 |
+| AoA maximum reverse force | 22 | 15 |
+| Elevator Weight effect intensity | 14 | 10 |
+
+Stick Shaker retains 25% of its previous intensity. Directional effect strength controls retain approximately 70%, rounded to integer settings. Frequency, activation thresholds, response curves and relative gain controls are retained. This is a reduction of the preset controls, not a measurement of the final torque after effects are combined. Overall force, basic spring/damping/friction, weapons, engine, gear and other vibration effects are unchanged.
+
+The new JSON was checked to change exactly these eight telemetry settings plus its name, UUID and timestamp. Local PC tooling was unavailable during this revision, so import and physical feel of v0.3 have not been verified; it is not claimed to be active in Cockpit yet.
+
+## Original v0.2 preset
 
 The preset is a separate UUID based on RacerCHA's `Elite-AB9-v4.preset`. It preserves base settings, axes and existing feel curves: overall force 100%, maximum torque 100%, centering spring 22%. All 27 jet effect pages are enabled, including weapon, engine, gear, G-force and speed effects. Mechanisms without source data remain neutral. Rotor/propeller settings inherited from the preset are not used by this jet output, and no autopilot commands are sent.
 
@@ -51,7 +70,7 @@ Because Elite and Star Citizen both identify as A-10C II, automatic aircraft-bas
 
 Isolated tests cover all exported keys, axes/units, unclipped peaks/speed, distinct weapon events, invalid input, pilot gating, TCP disconnect/reconnect, stale-source expiration and independent SimHub/MOZA toggles. Test TCP executables use a different name so Cockpit cannot mistake them for live DCS. Synthetic or recorded crash data is never sent to the real device by these tests.
 
-The historic flight recording contains 18,390 vehicle frames and 81 Weapon events. Gear and boost were zero throughout; ordnance and explicit Impact/Explosion events were absent. Supporting those channels in code is not a claim that they have been observed live. Preset import and settings were verified in Cockpit 1.1.5.42; AB9 response in Star Citizen flight remains to be verified.
+The historic flight recording contains 18,390 vehicle frames and 81 Weapon events. Gear and boost were zero throughout; ordnance and explicit Impact/Explosion events were absent. Supporting those channels in code is not a claim that they have been observed live. The v0.2 preset was imported and checked in Cockpit 1.1.5.42. The user subsequently confirmed working live feedback and requested softer effects; this does not individually validate every mapped event.
 
 ## Configuration
 
