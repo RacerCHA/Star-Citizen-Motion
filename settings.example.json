@@ -1,5 +1,10 @@
 {
   "NodePath": "C:\\Program Files\\nodejs\\node.exe",
   "CertificateDirectory": "runtime\\cert",
-  "SimHubPath": "C:\\Program Files (x86)\\SimHub\\SimHubWPF.exe"
+  "SimHubPath": "C:\\Program Files (x86)\\SimHub\\SimHubWPF.exe",
+  "MozaCockpitPath": "C:\\Program Files (x86)\\MOZA Cockpit\\bin\\MOZA Cockpit.exe",
+  "MozaTcpPort": 3476,
+  "MozaUdpPort": 56063,
+  "MozaShipSpeedScale": 650,
+  "MozaDcsSpeedScale": 231.5
 }
