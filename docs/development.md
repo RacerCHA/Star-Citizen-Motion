@@ -15,6 +15,10 @@ Run in PowerShell 7 from the project directory:
 
 ```powershell
 node .\tests\encoder.mjs
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Build.ps1
+node .\tests\moza-encoder.mjs
+node .\tests\moza-host.mjs
+node .\tests\outputs.mjs
 pwsh -NoProfile -File .\New-LocalCertificate.ps1 -OutDir .\receiver\runtime\cert
 node .\tests\receiver.mjs
 node .\tests\receiver.mjs --no-record
@@ -32,6 +36,9 @@ The installer test exercises its actual atomic write, scope checking and rollbac
 - `TrayApp.cs`: tray UI and owned-process lifetime.
 - `bridge.mjs`: JSON input and SimHub UDP output; optional explicit replay for development.
 - `simhub-packet.mjs`: event state and binary encoding.
+- `moza-packet.mjs`: pilot-gated DCS text conversion and effect equivalents.
+- `DcsHost.cs`: owned loopback TCP server compiled as DCS.exe; freshness watchdog and reconnect.
+- `presets/`: separate AB9 profile derived from the existing Elite v4 profile.
 - `receiver/`: TLS/gRPC receiver and protobuf codec.
 - `StarCitizen.simdef`: registered game definition, family Flight.
 - `Apply-DBox.ps1`: version-checked transactional setup and rollback.
@@ -39,3 +46,5 @@ The installer test exercises its actual atomic write, scope checking and rollbac
 - `upstream/`: preserved schema source and provenance in the notices file.
 
 The app's own SHA-256 and the release archive SHA-256 can be checked in the generated `SHA256SUMS.txt`. Rebuilding with a different compiler may change the executable hash.
+
+The MOZA host test runs under the non-DCS name `SCMozaHostTest.exe` on ephemeral ports, so it cannot be selected by Cockpit. `outputs.mjs` also uses ephemeral ports. `flight-audit.mjs <private capture.jsonl>` evaluates a recording offline without opening any sockets. Never replay a crash recording into the live MOZA/SimHub ports to run software tests.

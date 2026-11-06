@@ -27,10 +27,18 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - name: Build executables
+        run: ./Build.ps1
       - name: Test encoder
         run: |
           node ./tests/encoder.mjs
           if ($LASTEXITCODE -ne 0) { throw 'Encoder test failed' }
+          node ./tests/moza-encoder.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'MOZA encoder test failed' }
+          node ./tests/moza-host.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'MOZA host test failed' }
+          node ./tests/outputs.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'Output independence test failed' }
       - name: Test isolated receiver
         run: |
           ./New-LocalCertificate.ps1 -OutDir ./receiver/runtime/cert

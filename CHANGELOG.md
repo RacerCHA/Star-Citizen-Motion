@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.0 — 2026-11-07
+
+- Independent SimHub and MOZA switches sharing one live receiver.
+- Owned DCS.exe TCP host, automatic lifetime, source-age timeout, stop and reconnect support.
+- DCS-compatible acceleration, angular rates, scaled speed, gear, engine/boost and weapon-event mapping.
+- Separate Star Citizen AB9 preset based on Elite v4, with jet effects enabled; unavailable channels remain neutral.
+- Explicit documentation of measured data, virtual aircraft cues and unavailable damage state.
+- Isolated encoder, TCP, timeout and output-switching tests. No live AB9 flight validation claimed yet.
+
 ## 0.1.0 — 2026-11-06
 
 Initial Star Citizen → SimHub baseline, before MOZA integration.
