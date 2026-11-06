@@ -1,5 +1,17 @@
 # Changelog
 
+## Combat 3 preset — 2026-11-07
+
+Third separate preset, derived from v0.3 Soft; application remains 0.2.0.
+
+- Disable G Force, Deceleration (both enable fields), AoA reverse force and Elevator Weight after the user reported fore/aft pull interfering with combat aiming.
+- Preserve Q-feel, Dynamic Pressure, base resistance, axis curves and all vibration settings, including Stick Shaker at 6.
+- Preserve v0.2 and v0.3 Soft, using a separate Combat 3 name and UUID.
+- Validate the JSON diff: five effect enable fields plus profile name, UUID and timestamp only. No bridge or SimHub changes.
+- Add the new preset to portable packaging.
+- Document the user-confirmed startup order: bridge → RSI Launcher → game.
+- Local tools could not initialize; Combat 3 still needs import and live verification.
+
 ## Preset v0.3 Soft — 2026-11-07
 
 Preset-only revision; application remains 0.2.0.

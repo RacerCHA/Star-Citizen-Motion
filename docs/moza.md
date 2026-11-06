@@ -4,8 +4,8 @@ The optional MOZA output uses the text protocol of MOZA's installed DCS exporter
 
 ## Start and stop
 
-- Launch `StarCitizenTelemetry.exe` before Star Citizen. SimHub starts enabled; MOZA requires its separate button on each app launch.
-- Load `presets/StarCitizen-AB9-v0.3-Soft.preset` in Cockpit: Local Preset → Import → Import → Load Now. It targets AB9 / DCS World / A-10C II / Telemetry FFB.
+- Start in this order: `StarCitizenTelemetry.exe` → RSI Launcher → Star Citizen. The user confirmed that starting the bridge before the launcher resolves the waiting-for-telemetry condition on the tested PC. If the launcher/game was already running without telemetry, close both and repeat this order. SimHub starts enabled; MOZA requires its separate button on each app launch.
+- Load `presets/StarCitizen-AB9-Combat-3.preset` in Cockpit: Local Preset → Import → Import → Load Now. It targets AB9 / DCS World / A-10C II / Telemetry FFB.
 - Enable MOZA in the lightning app. It starts its own `DCS World/bin/DCS.exe`. Disable MOZA to stop that helper while keeping the game connection and SimHub alive.
 - Do not run the Elite bridge or the actual DCS simultaneously: both use the same process identity and TCP channel. The app refuses this conflict and never terminates another DCS process.
 - Cockpit needs its DCS integration configured to connect locally. The tested PC uses TCP **3476**, confirmed in `Saved Games/DCS/Scripts/MOZA/MOZA.lua`. MOZA's bundled default may be **1234**. Match `MozaTcpPort` to the port in your configured export script; do not replace existing Elite scripts unnecessarily. Configuration on a fresh Cockpit install without any existing DCS integration has not been validated.
@@ -39,6 +39,23 @@ The 650 m/s point is a configurable feel reference, **not a hard maximum Star Ci
 
 The recorded Weapon event contains subtype values 0/1/2 whose exact correspondence has not been verified. They all drive the gun-fire cue rather than inventing ammunition or missile classifications. The frequent Recoil event (13) is not mixed into acceleration: its vector semantics are not yet verified, and doing so could double-count a force. Other unsupported events remain observable internally but do not fabricate DCS controls.
 
+## Combat 3 — third preset, 2026-11-07
+
+Import **StarCitizen-AB9-Combat-3.preset** and select **Load Now**. The profile is named **Star Citizen — AB9 Combat 3**, with its own UUID. It is based on v0.3 Soft; both previous presets remain available. The application stays at 0.2.0.
+
+The user reported that pulling the nose up sharply during combat made the stick pull farther toward the pilot, interfering with aiming. This revision disables the following candidate force effects as a group; no individual effect has been isolated as the confirmed cause in a live test.
+
+| Effect | v0.3 Soft | Combat 3 | Preset field |
+|---|---|---|---|
+| G Force | On | Off | `new_gforce_effect_enable` |
+| Deceleration | On | Off | `deceleration_effect_enable`, `deceleration_max_force_switch` |
+| AoA reverse force | On | Off | `aoa_reduction_max_force_switch` |
+| Elevator Weight | On | Off | `elevator_droop_switch` |
+
+The five enable fields are false. Stored strengths, thresholds and curves are retained but the corresponding effects are disabled. Q-feel stick pressure, aerodynamic damping, Dynamic Pressure and the base spring/damping/friction settings are unchanged. Stick Shaker remains at 6; weapons, engine, gear, stall/transonic buffet and other vibration settings are unchanged. Axis curves, telemetry conversion and the SimHub output are unchanged.
+
+The JSON diff was checked against v0.3 Soft: exactly five enable fields plus name, UUID and timestamp changed. Local computer tools could not initialize during this revision, so import, activation and physical feel of Combat 3 are not yet verified. Importing the file is still required; publishing it does not activate it in Cockpit.
+
 ## Preset v0.3 Soft — 2026-11-07
 
 This is a new preset UUID, derived from v0.2 after the user reported working live feedback but an uncomfortable Stick Shaker and excessive directional forces. The bridge version and telemetry conversion are unchanged. Import **StarCitizen-AB9-v0.3-Soft.preset**, then choose **Load Now**. The v0.2 preset remains available.
@@ -56,7 +73,7 @@ This is a new preset UUID, derived from v0.2 after the user reported working liv
 
 Stick Shaker retains 25% of its previous intensity. Directional effect strength controls retain approximately 70%, rounded to integer settings. Frequency, activation thresholds, response curves and relative gain controls are retained. This is a reduction of the preset controls, not a measurement of the final torque after effects are combined. Overall force, basic spring/damping/friction, weapons, engine, gear and other vibration effects are unchanged.
 
-The new JSON was checked to change exactly these eight telemetry settings plus its name, UUID and timestamp. Local PC tooling was unavailable during this revision, so import and physical feel of v0.3 have not been verified; it is not claimed to be active in Cockpit yet.
+The JSON was checked to change exactly these eight telemetry settings plus its name, UUID and timestamp. Local PC tooling was unavailable when it was prepared. The user subsequently confirmed importing Soft and flying with it; the remaining fore/aft pull during combat led to the separate Combat 3 preset above.
 
 ## Original v0.2 preset
 
