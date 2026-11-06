@@ -1,0 +1,50 @@
+name: Build and release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - VERSION
+      - .github/workflows/release.yml
+      - .github/scripts/Publish-Release.ps1
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Test encoder
+        run: |
+          node ./tests/encoder.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'Encoder test failed' }
+      - name: Test isolated receiver
+        run: |
+          ./New-LocalCertificate.ps1 -OutDir ./receiver/runtime/cert
+          node ./tests/receiver.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'Receiver test failed' }
+          node ./tests/receiver.mjs --no-record
+          if ($LASTEXITCODE -ne 0) { throw 'No-record test failed' }
+      - name: Test installer fixture
+        run: |
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File ./tests/installer.ps1
+          if ($LASTEXITCODE -ne 0) { throw 'Installer test failed' }
+      - name: Build portable package
+        run: ./Package.ps1
+      - name: Publish versioned release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: ./.github/scripts/Publish-Release.ps1

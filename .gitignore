@@ -1,0 +1,18 @@
+# Private machine state: never publish keys, backups, captures or logs.
+runtime/
+**/runtime/
+*.key
+*.pem
+*.pfx
+*.p12
+*.crt
+*.cer
+*.log
+*.jsonl
+settings.json
+dist/
+*.exe
+*.dll
+*.zip
+__pycache__/
+*.pyc

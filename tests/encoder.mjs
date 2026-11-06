@@ -1,0 +1,31 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Synthetic contract test. No network or motion hardware is used.
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import {SimHubEncoder} from '../simhub-packet.mjs';
+const definition=JSON.parse(fs.readFileSync(new URL('../StarCitizen.simdef',import.meta.url)));
+const base={schema_version:1,source:'star-citizen-dbox',session_id:'test-session',stream_id:'test-stream',mapping_valid:true,meanings:[],values:[]};
+const frame={...base,event_key:3,acceleration_m_s2:{x:-2,y:4,z:6000},angular_velocity_rad_s:{x:Math.PI/2,y:-Math.PI,z:Math.PI/4},velocity_m_s:{x:3,y:4,z:0}};
+const encoder=new SimHubEncoder(definition);
+encoder.ingest({...base,event_key:1,meanings:[30],values:['TEST_SHIP']});
+encoder.ingest({...base,event_key:0,meanings:[93],values:[.125]});
+const p=encoder.ingest(frame);
+assert.equal(p.length,351);
+assert.equal(p.readUInt32LE(0),0x9844a282);
+assert.equal(p.readUInt32LE(4),0x77903625);
+assert.equal(p.readUInt16LE(8),1);
+assert.equal(p.readDoubleLE(43),.125);
+assert.equal(p.readFloatLE(55),4);assert.equal(p.readFloatLE(59),-2);assert.equal(p.readFloatLE(63),6000);
+assert.equal(p.readFloatLE(67),-45);assert.equal(p.readFloatLE(71),-90);assert.equal(p.readFloatLE(75),-180);
+assert.equal(p.readFloatLE(79),4);assert.equal(p.readFloatLE(83),3);assert.equal(p.readFloatLE(87),0);assert.equal(p.readFloatLE(91),18);
+assert.equal(p.subarray(95).toString('utf8').split('\0')[0],'TEST_SHIP');
+assert.equal(p[29],1);assert.equal(p[39],0);assert.equal(p[40],1);
+const exit=encoder.ingest({...base,event_key:2});assert.equal(exit[29],0);assert.equal(exit[40],0);assert.equal(exit.readFloatLE(63),6000);
+const changed=encoder.ingest({...frame,stream_id:'new-stream'});assert.notEqual(changed.readBigUInt64LE(31),p.readBigUInt64LE(31));assert.equal(changed.readDoubleLE(43),0);
+const replay=new SimHubEncoder(definition,{replay:true}).ingest(frame);assert.equal(replay[39],1);
+assert.equal(encoder.ingest({...frame,mapping_valid:false}),null);
+assert.equal(encoder.ingest({...frame,source:'wrong-source'}),null);
+assert.throws(()=>encoder.ingest({...frame,acceleration_m_s2:{x:NaN,y:1,z:2}}),/Incomplete/);
+const wrong=structuredClone(definition);wrong.TelemetryDefinition.Fields.reverse();assert.throws(()=>new SimHubEncoder(wrong),/Definition fields changed/);
+assert.equal(definition.TelemetryBehaviour.GameFamily,2);
+console.log('PASS: packet layout, signed axes/rates, raw peak, session state, replay, invalid vectors and Flight family.');

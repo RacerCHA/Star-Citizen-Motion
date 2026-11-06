@@ -1,0 +1,885 @@
+{
+  "source": {
+    "url": "https://github.com/DMUSER15/SC-Motion-Haptic-Bridge",
+    "commit": "53a4fba0bab91db841264948366f06150be06729",
+    "license": "GPL-3.0"
+  },
+  "messages": {
+    ".dbox.proto.v1.ClientInfo": [
+      {
+        "name": "client_id",
+        "number": 1,
+        "label": 1,
+        "type": 9,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "client_type",
+        "number": 2,
+        "label": 1,
+        "type": 14,
+        "type_name": ".dbox.proto.v1.ClientType",
+        "oneof_index": null
+      }
+    ],
+    ".dbox.proto.v1.IdentificationRequest": [
+      {
+        "name": "client_info",
+        "number": 1,
+        "label": 1,
+        "type": 11,
+        "type_name": ".dbox.proto.v1.ClientInfo",
+        "oneof_index": null
+      },
+      {
+        "name": "client_version",
+        "number": 2,
+        "label": 1,
+        "type": 9,
+        "type_name": "",
+        "oneof_index": null
+      }
+    ],
+    ".dbox.proto.v1.IdentificationResponse": [
+      {
+        "name": "server_id",
+        "number": 1,
+        "label": 1,
+        "type": 9,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "server_name",
+        "number": 2,
+        "label": 1,
+        "type": 9,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "server_version",
+        "number": 3,
+        "label": 1,
+        "type": 9,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "supported_client_types",
+        "number": 7,
+        "label": 3,
+        "type": 14,
+        "type_name": ".dbox.proto.v1.ClientType",
+        "oneof_index": null
+      },
+      {
+        "name": "single_client_mode",
+        "number": 8,
+        "label": 1,
+        "type": 8,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "current_client_count",
+        "number": 9,
+        "label": 1,
+        "type": 5,
+        "type_name": "",
+        "oneof_index": null
+      }
+    ],
+    ".dbox.proto.v1.LiveMotionRequest": [
+      {
+        "name": "client_info",
+        "number": 1,
+        "label": 1,
+        "type": 11,
+        "type_name": ".dbox.proto.v1.ClientInfo",
+        "oneof_index": null
+      },
+      {
+        "name": "request_id",
+        "number": 3,
+        "label": 1,
+        "type": 4,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "timestamp",
+        "number": 4,
+        "label": 1,
+        "type": 4,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "initialize",
+        "number": 10,
+        "label": 1,
+        "type": 11,
+        "type_name": ".dbox.proto.v1.InitializeParam",
+        "oneof_index": 0
+      },
+      {
+        "name": "terminate",
+        "number": 11,
+        "label": 1,
+        "type": 11,
+        "type_name": ".dbox.proto.v1.TerminateParam",
+        "oneof_index": 0
+      },
+      {
+        "name": "open",
+        "number": 12,
+        "label": 1,
+        "type": 11,
+        "type_name": ".dbox.proto.v1.OpenParam",
+        "oneof_index": 0
+      },
+      {
+        "name": "close",
+        "number": 13,
+        "label": 1,
+        "type": 11,
+        "type_name": ".dbox.proto.v1.CloseParam",
+        "oneof_index": 0
+      },
+      {
+        "name": "start",
+        "number": 14,
+        "label": 1,
+        "type": 11,
+        "type_name": ".dbox.proto.v1.StartParam",
+        "oneof_index": 0
+      },
+      {
+        "name": "stop",
+        "number": 15,
+        "label": 1,
+        "type": 11,
+        "type_name": ".dbox.proto.v1.StopParam",
+        "oneof_index": 0
+      },
+      {
+        "name": "register_event",
+        "number": 16,
+        "label": 1,
+        "type": 11,
+        "type_name": ".dbox.proto.v1.RegisterEventParam",
+        "oneof_index": 0
+      },
+      {
+        "name": "set_open_extra_sessions",
+        "number": 17,
+        "label": 1,
+        "type": 11,
+        "type_name": ".dbox.proto.v1.SetOpenExtraSessionsParam",
+        "oneof_index": 0
+      },
+      {
+        "name": "reset_state",
+        "number": 18,
+        "label": 1,
+        "type": 11,
+        "type_name": ".dbox.proto.v1.ResetStateParam",
+        "oneof_index": 0
+      },
+      {
+        "name": "post_event",
+        "number": 19,
+        "label": 1,
+        "type": 11,
+        "type_name": ".dbox.proto.v1.PostEventParam",
+        "oneof_index": 0
+      },
+      {
+        "name": "post_event_to_session",
+        "number": 20,
+        "label": 1,
+        "type": 11,
+        "type_name": ".dbox.proto.v1.PostEventToSessionParam",
+        "oneof_index": 0
+      },
+      {
+        "name": "post_events",
+        "number": 21,
+        "label": 1,
+        "type": 11,
+        "type_name": ".dbox.proto.v1.PostEventsParam",
+        "oneof_index": 0
+      },
+      {
+        "name": "post_events_to_session",
+        "number": 22,
+        "label": 1,
+        "type": 11,
+        "type_name": ".dbox.proto.v1.PostEventsToSessionParam",
+        "oneof_index": 0
+      },
+      {
+        "name": "heartbeat",
+        "number": 23,
+        "label": 1,
+        "type": 11,
+        "type_name": ".dbox.proto.v1.HeartbeatParam",
+        "oneof_index": 0
+      }
+    ],
+    ".dbox.proto.v1.LiveMotionResponse": [
+      {
+        "name": "client_id",
+        "number": 1,
+        "label": 1,
+        "type": 9,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "request_id",
+        "number": 2,
+        "label": 1,
+        "type": 4,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "timestamp",
+        "number": 3,
+        "label": 1,
+        "type": 4,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "result_code",
+        "number": 4,
+        "label": 1,
+        "type": 5,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "message",
+        "number": 5,
+        "label": 1,
+        "type": 9,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "reply",
+        "number": 10,
+        "label": 1,
+        "type": 11,
+        "type_name": ".dbox.proto.v1.Reply",
+        "oneof_index": 0
+      },
+      {
+        "name": "post_events_reply",
+        "number": 11,
+        "label": 1,
+        "type": 11,
+        "type_name": ".dbox.proto.v1.PostEventsReply",
+        "oneof_index": 0
+      },
+      {
+        "name": "heartbeat_response",
+        "number": 12,
+        "label": 1,
+        "type": 11,
+        "type_name": ".dbox.proto.v1.HeartbeatResponse",
+        "oneof_index": 0
+      },
+      {
+        "name": "server_notification",
+        "number": 13,
+        "label": 1,
+        "type": 11,
+        "type_name": ".dbox.proto.v1.ServerNotification",
+        "oneof_index": 0
+      }
+    ],
+    ".dbox.proto.v1.Reply": [
+      {
+        "name": "liveMotionResult",
+        "number": 1,
+        "label": 1,
+        "type": 5,
+        "type_name": "",
+        "oneof_index": null
+      }
+    ],
+    ".dbox.proto.v1.PostEventsReply": [
+      {
+        "name": "liveMotionResult",
+        "number": 1,
+        "label": 1,
+        "type": 5,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "eventBufferedCount",
+        "number": 2,
+        "label": 1,
+        "type": 13,
+        "type_name": "",
+        "oneof_index": null
+      }
+    ],
+    ".dbox.proto.v1.HeartbeatResponse": [
+      {
+        "name": "server_timestamp",
+        "number": 1,
+        "label": 1,
+        "type": 4,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "client_timestamp",
+        "number": 2,
+        "label": 1,
+        "type": 4,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "connected_clients",
+        "number": 3,
+        "label": 1,
+        "type": 5,
+        "type_name": "",
+        "oneof_index": null
+      }
+    ],
+    ".dbox.proto.v1.ServerNotification": [
+      {
+        "name": "notification_type",
+        "number": 1,
+        "label": 1,
+        "type": 9,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "affected_client_id",
+        "number": 2,
+        "label": 1,
+        "type": 9,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "details",
+        "number": 3,
+        "label": 1,
+        "type": 9,
+        "type_name": "",
+        "oneof_index": null
+      }
+    ],
+    ".dbox.proto.v1.EventDefinition": [
+      {
+        "name": "eventKey",
+        "number": 1,
+        "label": 1,
+        "type": 13,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "eventMeaning",
+        "number": 2,
+        "label": 1,
+        "type": 13,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "fieldCount",
+        "number": 3,
+        "label": 1,
+        "type": 13,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "fieldAddress",
+        "number": 4,
+        "label": 1,
+        "type": 4,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "fieldDef",
+        "number": 5,
+        "label": 3,
+        "type": 11,
+        "type_name": ".dbox.proto.v1.FieldDefinition",
+        "oneof_index": null
+      }
+    ],
+    ".dbox.proto.v1.FieldDefinition": [
+      {
+        "name": "type",
+        "number": 1,
+        "label": 1,
+        "type": 13,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "flags",
+        "number": 2,
+        "label": 1,
+        "type": 13,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "meaning",
+        "number": 3,
+        "label": 1,
+        "type": 13,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "offset",
+        "number": 4,
+        "label": 1,
+        "type": 13,
+        "type_name": "",
+        "oneof_index": null
+      }
+    ],
+    ".dbox.proto.v1.XYZ_StructFloat32": [
+      {
+        "name": "x",
+        "number": 1,
+        "label": 1,
+        "type": 2,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "y",
+        "number": 2,
+        "label": 1,
+        "type": 2,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "z",
+        "number": 3,
+        "label": 1,
+        "type": 2,
+        "type_name": "",
+        "oneof_index": null
+      }
+    ],
+    ".dbox.proto.v1.XYZ_StructFloat64": [
+      {
+        "name": "x",
+        "number": 1,
+        "label": 1,
+        "type": 1,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "y",
+        "number": 2,
+        "label": 1,
+        "type": 1,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "z",
+        "number": 3,
+        "label": 1,
+        "type": 1,
+        "type_name": "",
+        "oneof_index": null
+      }
+    ],
+    ".dbox.proto.v1.QuadInt32": [
+      {
+        "name": "frontLeft",
+        "number": 1,
+        "label": 1,
+        "type": 5,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "frontRight",
+        "number": 2,
+        "label": 1,
+        "type": 5,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "backLeft",
+        "number": 3,
+        "label": 1,
+        "type": 5,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "backRight",
+        "number": 4,
+        "label": 1,
+        "type": 5,
+        "type_name": "",
+        "oneof_index": null
+      }
+    ],
+    ".dbox.proto.v1.QuadFloat32": [
+      {
+        "name": "frontLeft",
+        "number": 1,
+        "label": 1,
+        "type": 2,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "frontRight",
+        "number": 2,
+        "label": 1,
+        "type": 2,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "backLeft",
+        "number": 3,
+        "label": 1,
+        "type": 2,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "backRight",
+        "number": 4,
+        "label": 1,
+        "type": 2,
+        "type_name": "",
+        "oneof_index": null
+      }
+    ],
+    ".dbox.proto.v1.QuadFloat64": [
+      {
+        "name": "frontLeft",
+        "number": 1,
+        "label": 1,
+        "type": 1,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "frontRight",
+        "number": 2,
+        "label": 1,
+        "type": 1,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "backLeft",
+        "number": 3,
+        "label": 1,
+        "type": 1,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "backRight",
+        "number": 4,
+        "label": 1,
+        "type": 1,
+        "type_name": "",
+        "oneof_index": null
+      }
+    ],
+    ".dbox.proto.v1.EventField": [
+      {
+        "name": "dataInt32",
+        "number": 1,
+        "label": 1,
+        "type": 5,
+        "type_name": "",
+        "oneof_index": 0
+      },
+      {
+        "name": "dataInt64",
+        "number": 2,
+        "label": 1,
+        "type": 3,
+        "type_name": "",
+        "oneof_index": 0
+      },
+      {
+        "name": "dataFloat32",
+        "number": 3,
+        "label": 1,
+        "type": 2,
+        "type_name": "",
+        "oneof_index": 0
+      },
+      {
+        "name": "dataFloat64",
+        "number": 4,
+        "label": 1,
+        "type": 1,
+        "type_name": "",
+        "oneof_index": 0
+      },
+      {
+        "name": "dataString",
+        "number": 5,
+        "label": 1,
+        "type": 9,
+        "type_name": "",
+        "oneof_index": 0
+      },
+      {
+        "name": "dataWideString",
+        "number": 6,
+        "label": 1,
+        "type": 12,
+        "type_name": "",
+        "oneof_index": 0
+      },
+      {
+        "name": "dataFloat32XYZ",
+        "number": 7,
+        "label": 1,
+        "type": 11,
+        "type_name": ".dbox.proto.v1.XYZ_StructFloat32",
+        "oneof_index": 0
+      },
+      {
+        "name": "dataFloat64XYZ",
+        "number": 8,
+        "label": 1,
+        "type": 11,
+        "type_name": ".dbox.proto.v1.XYZ_StructFloat64",
+        "oneof_index": 0
+      },
+      {
+        "name": "dataQuadInt32",
+        "number": 9,
+        "label": 1,
+        "type": 11,
+        "type_name": ".dbox.proto.v1.QuadInt32",
+        "oneof_index": 0
+      },
+      {
+        "name": "dataQuadFloat32",
+        "number": 10,
+        "label": 1,
+        "type": 11,
+        "type_name": ".dbox.proto.v1.QuadFloat32",
+        "oneof_index": 0
+      },
+      {
+        "name": "dataQuadFloat64",
+        "number": 11,
+        "label": 1,
+        "type": 11,
+        "type_name": ".dbox.proto.v1.QuadFloat64",
+        "oneof_index": 0
+      }
+    ],
+    ".dbox.proto.v1.EventData": [
+      {
+        "name": "eventField",
+        "number": 1,
+        "label": 3,
+        "type": 11,
+        "type_name": ".dbox.proto.v1.EventField",
+        "oneof_index": null
+      }
+    ],
+    ".dbox.proto.v1.EventInfo": [
+      {
+        "name": "eventKey",
+        "number": 1,
+        "label": 1,
+        "type": 13,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "eventData",
+        "number": 2,
+        "label": 3,
+        "type": 11,
+        "type_name": ".dbox.proto.v1.EventData",
+        "oneof_index": null
+      },
+      {
+        "name": "size",
+        "number": 3,
+        "label": 1,
+        "type": 4,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "count",
+        "number": 4,
+        "label": 1,
+        "type": 4,
+        "type_name": "",
+        "oneof_index": null
+      }
+    ],
+    ".dbox.proto.v1.InitializeParam": [
+      {
+        "name": "appVersion",
+        "number": 2,
+        "label": 1,
+        "type": 13,
+        "type_name": "",
+        "oneof_index": null
+      }
+    ],
+    ".dbox.proto.v1.TerminateParam": [],
+    ".dbox.proto.v1.OpenParam": [],
+    ".dbox.proto.v1.CloseParam": [],
+    ".dbox.proto.v1.StartParam": [],
+    ".dbox.proto.v1.StopParam": [],
+    ".dbox.proto.v1.ResetStateParam": [],
+    ".dbox.proto.v1.RegisterEventParam": [
+      {
+        "name": "eventDefinition",
+        "number": 1,
+        "label": 1,
+        "type": 11,
+        "type_name": ".dbox.proto.v1.EventDefinition",
+        "oneof_index": null
+      }
+    ],
+    ".dbox.proto.v1.PostEventParam": [
+      {
+        "name": "eventInfo",
+        "number": 1,
+        "label": 1,
+        "type": 11,
+        "type_name": ".dbox.proto.v1.EventInfo",
+        "oneof_index": null
+      }
+    ],
+    ".dbox.proto.v1.PostEventToSessionParam": [
+      {
+        "name": "targetSession",
+        "number": 1,
+        "label": 1,
+        "type": 13,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "eventInfo",
+        "number": 2,
+        "label": 1,
+        "type": 11,
+        "type_name": ".dbox.proto.v1.EventInfo",
+        "oneof_index": null
+      }
+    ],
+    ".dbox.proto.v1.SetOpenExtraSessionsParam": [
+      {
+        "name": "additionalSessions",
+        "number": 1,
+        "label": 1,
+        "type": 13,
+        "type_name": "",
+        "oneof_index": null
+      }
+    ],
+    ".dbox.proto.v1.PostEventsParam": [
+      {
+        "name": "eventInfo",
+        "number": 1,
+        "label": 1,
+        "type": 11,
+        "type_name": ".dbox.proto.v1.EventInfo",
+        "oneof_index": null
+      },
+      {
+        "name": "eventBufferedCount",
+        "number": 2,
+        "label": 1,
+        "type": 13,
+        "type_name": "",
+        "oneof_index": null
+      }
+    ],
+    ".dbox.proto.v1.PostEventsToSessionParam": [
+      {
+        "name": "targetSession",
+        "number": 1,
+        "label": 1,
+        "type": 13,
+        "type_name": "",
+        "oneof_index": null
+      },
+      {
+        "name": "eventInfo",
+        "number": 2,
+        "label": 1,
+        "type": 11,
+        "type_name": ".dbox.proto.v1.EventInfo",
+        "oneof_index": null
+      },
+      {
+        "name": "eventBufferedCount",
+        "number": 3,
+        "label": 1,
+        "type": 13,
+        "type_name": "",
+        "oneof_index": null
+      }
+    ],
+    ".dbox.proto.v1.HeartbeatParam": [
+      {
+        "name": "client_timestamp",
+        "number": 1,
+        "label": 1,
+        "type": 4,
+        "type_name": "",
+        "oneof_index": null
+      }
+    ]
+  },
+  "enums": {
+    "ClientType": [
+      [
+        "Default",
+        0
+      ],
+      [
+        "UniversalHaptiCode",
+        1
+      ],
+      [
+        "LiveMotionGame",
+        2
+      ]
+    ]
+  }
+}
