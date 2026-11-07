@@ -46,6 +46,10 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Receiver test failed' }
           node ./tests/receiver.mjs --no-record
           if ($LASTEXITCODE -ne 0) { throw 'No-record test failed' }
+          node ./tests/recovery.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'Persistent receiver/status recovery test failed' }
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File ./tests/worker-recovery.ps1
+          if ($LASTEXITCODE -ne 0) { throw 'Worker recovery test failed' }
       - name: Test installer fixture
         run: |
           powershell.exe -NoProfile -ExecutionPolicy Bypass -File ./tests/installer.ps1

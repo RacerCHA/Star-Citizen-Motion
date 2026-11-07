@@ -28,19 +28,10 @@ if($existingTag){
 $release=Get-Optional ($api+'/releases/tags/'+$tag)
 if($release -and -not $release.draft){Write-Output ('Release '+$tag+' already published; preserved.');exit 0}
 if(-not $release){
-    $body=@"
-Star Citizen → SimHub Motion: первая зафиксированная версия до интеграции MOZA.
-
-- Приложение Windows в трее с синей молнией.
-- Ускорения, угловые скорости и скорости; семейство Flight.
-- Без сглаживания и ограничения пиков в мосте.
-- Установка с нуля, индивидуальный сертификат и откат D-BOX.
-
-Скачайте ZIP ниже и распакуйте целиком. Инструкция — README.md в архиве и репозитории.
-Зависимости: Node.js, PowerShell 7, SimHub и проверенный D-BOX HSC 1.4.0.
-Приватные ключи и бинарные файлы D-BOX в архив не входят. Выхода MOZA в этой версии нет.
-"@
-    $release=Send-Json 'Post' ($api+'/releases') @{tag_name=$tag;target_commitish=$env:GITHUB_SHA;name=$tag+' — Star Citizen → SimHub Motion';body=$body;draft=$true;prerelease=$false}
+    $notes=Join-Path $root ('docs/releases/'+$tag+'.md')
+    if(-not (Test-Path -LiteralPath $notes)){throw ('Missing release notes: '+$tag)}
+    $body=Get-Content -LiteralPath $notes -Raw -Encoding UTF8
+    $release=Send-Json 'Post' ($api+'/releases') @{tag_name=$tag;target_commitish=$env:GITHUB_SHA;name=$tag+' — Star Citizen Motion (SimHub + MOZA)';body=$body;draft=$true;prerelease=$false}
 }
 $files=@((Join-Path $root ('dist/StarCitizen-Motion-'+$tag+'-win-x64.zip')),(Join-Path $root 'dist/SHA256SUMS.txt'))
 foreach($file in $files){

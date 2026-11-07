@@ -22,12 +22,18 @@ node .\tests\outputs.mjs
 pwsh -NoProfile -File .\New-LocalCertificate.ps1 -OutDir .\receiver\runtime\cert
 node .\tests\receiver.mjs
 node .\tests\receiver.mjs --no-record
+node .\tests\recovery.mjs
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tests\worker-recovery.ps1
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tests\installer.ps1
 ```
 
 The receiver tests use dynamically allocated loopback ports and synthetic vectors. They do not send data to SimHub or motion hardware. They test TLS trust/hostname, protobuf/gRPC framing, stream-local registration, UDP mapping, heartbeat responses and omitted credential fields. `--no-record` also verifies that normal tray operation creates no capture file. Certificates and test fixtures are created under ignored `runtime` directories.
 
 The installer test exercises its actual atomic write, scope checking and rollback functions against a workspace fixture. It never modifies an installed D-BOX instance and does not require administrator privileges.
+
+`recovery.mjs` holds actual Windows file handles that deny atomic replacement and verifies continued UDP/TLS traffic, recovered valid JSON, indefinite (`--duration 0`) operation, idle resume and new TLS sessions after clean and aborted connections. `moza-host.mjs` also locks the TCP host's status file while sending fresh packets, then verifies the stale-data disconnect still works. `worker-recovery.ps1` tests the real process supervisor with disposable child processes: crash recovery, bounded backoff, preserving a healthy sibling, and cancellation on manual stop. All network tests use ephemeral ports and the TCP test executable is not named DCS.
+
+These accelerated tests do not claim an hour-long live Star Citizen AFK session has been tested. The listener accepts a new connection if the game's connector initiates one; it cannot force the game to reconnect.
 
 `tests/encoder.mjs` checks the generated packet layout, signed axes/rates, full-scale crash values, session transitions, invalid input and replay flags. The historical real-flight comparison is summarized in [telemetry.md](telemetry.md); private flight recordings are not required for the public tests.
 

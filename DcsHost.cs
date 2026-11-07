@@ -19,12 +19,13 @@ static class DcsHost {
         string status=TextOption(args,"--status",Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"runtime","moza-status.json"));
         int port=Option(args,"--port",3476),udpPort=Option(args,"--udp-port",56063),parentId=Option(args,"--parent",0);
         TcpListener listener=null;UdpClient udp=null;TcpClient client=null;Process parent=null;
-        long received=0,sent=0;string error="",lastFrame=null;double lastFrameAt=-10000,lastSave=-10000,lastSent=-10000;
+        long received=0,sent=0,statusWriteErrors=0;string error="",lastFrame=null;double lastFrameAt=-10000,lastSave=-10000,lastSent=-10000,lastStatusWarning=-60000;
         var clock=Stopwatch.StartNew();bool active=false,stopped=false;int clients=0;
         Action save=delegate {
-            Directory.CreateDirectory(Path.GetDirectoryName(status));string temp=status+".tmp";
-            File.WriteAllText(temp,Json.Serialize(new{pid=Process.GetCurrentProcess().Id,port=port,udp_port=udpPort,active=active,connected=client!=null,clients=clients,received=received,sent=sent,stopped=stopped,error=error,updated_at=DateTime.UtcNow.ToString("o")}));
-            if(File.Exists(status))File.Replace(temp,status,null);else File.Move(temp,status);
+            if(!RuntimeFiles.TryWriteSnapshot(status,Json.Serialize(new{pid=Process.GetCurrentProcess().Id,port=port,udp_port=udpPort,active=active,connected=client!=null,clients=clients,received=received,sent=sent,stopped=stopped,error=error,status_write_errors=statusWriteErrors,updated_at=DateTime.UtcNow.ToString("o")}))){
+                statusWriteErrors++;
+                if(clock.Elapsed.TotalMilliseconds-lastStatusWarning>=60000){Console.Error.WriteLine("Status write deferred; MOZA telemetry continues.");lastStatusWarning=clock.Elapsed.TotalMilliseconds;}
+            }
         };
         try {
             if(port<1||port>65535||udpPort<1||udpPort>65535||port==udpPort)throw new ArgumentException("Invalid ports");
@@ -34,6 +35,7 @@ static class DcsHost {
                 if(Process.GetProcessesByName("DCS").Length!=1)throw new Exception("Another DCS or Elite bridge is running");
             }
             if(parentId>0)parent=Process.GetProcessById(parentId);
+            Directory.CreateDirectory(Path.GetDirectoryName(status));
             listener=new TcpListener(IPAddress.Loopback,port);listener.ExclusiveAddressUse=true;listener.Start(2);
             udp=new UdpClient(AddressFamily.InterNetwork);udp.ExclusiveAddressUse=true;udp.Client.Bind(new IPEndPoint(IPAddress.Loopback,udpPort));
             udp.Client.ReceiveTimeout=20;save();
