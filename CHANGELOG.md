@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.1 — 2026-11-07
+
+- Fix the observed Windows `EPERM` crash when replacing `runtime/status.json`. Diagnostic file write failures no longer stop the UDP bridge, receiver or MOZA TCP host; the next status tick retries.
+- Read tray snapshots with delete sharing so the UI does not block atomic replacement by the writers.
+- Run tray-owned receiver/bridge without the previous 24-hour limit. A menu pause or lack of telemetry does not trigger a restart.
+- Restart only a failed bridge/receiver process with 1–30 second backoff. Keep a healthy receiver and the selected output toggles alive; manual Stop/Exit cancels recovery.
+- Preserve MOZA freshness timeout: no stored forces are replayed during an idle menu or reconnect.
+- Add Windows file-lock, clean/aborted TLS reconnect, idle resume and owned-process recovery regression tests on isolated ports.
+- Include both Soft and Combat 3 presets in the portable package.
+
 ## Combat 3 preset — 2026-11-07
 
 Third separate preset, derived from v0.3 Soft; application remains 0.2.0.

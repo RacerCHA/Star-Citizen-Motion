@@ -9,6 +9,7 @@ import { Writable } from 'node:stream';
 import { fileURLToPath } from 'node:url';
 import { decodeMessage, GrpcFrames } from './protobuf.mjs';
 import { encodeMessage, frame } from './wire.mjs';
+import { statusWriter } from '../status-file.mjs';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const schema = JSON.parse(fs.readFileSync(path.join(root,'motion-schema.json')));
@@ -18,7 +19,7 @@ const port = Number(option('port','61666')), udpPort=Number(option('udp-port','5
 const duration = Number(option('duration','1800'));
 const certDir=path.resolve(option('cert-dir',path.join(root,'runtime','cert')));
 const outDir=path.resolve(option('out',path.join(root,'runtime','captures')));
-if (![port,udpPort].every(n=>Number.isInteger(n)&&n>0&&n<65536)||!Number.isFinite(duration)||duration<=0) throw Error('Invalid port/duration');
+if (![port,udpPort].every(n=>Number.isInteger(n)&&n>0&&n<65536)||!Number.isFinite(duration)||duration<0) throw Error('Invalid port/duration');
 fs.mkdirSync(outDir,{recursive:true});
 const runId=crypto.randomUUID(), started=new Date().toISOString(), stamp=started.replace(/[:.]/g,'-');
 const captureFile=path.join(outDir,stamp+'.jsonl'), statusFile=path.join(outDir,'latest-status.json');
@@ -30,7 +31,7 @@ const status={run_id:runId,started,capture_file:noRecord?null:captureFile,listen
 let seq=0, stopping=false, timer, durationTimer;
 const sessions=new Set();
 const names=['Global','EnterVehicleConfig','LeaveVehicle','VehicleFrame','Vibration','Weapon','ExplosiveOrdnance','VehicleImpact','VehicleExplosionImpact','Decoupled','PlayerRole','Turret','Actor','Recoil','Heartbeat','ForceReaction','Footstep','AudioHaptic','GroundVehicle','Throw'];
-function writeStatus() { const tmp=statusFile+'.tmp'; fs.writeFileSync(tmp,JSON.stringify(status,null,2)); fs.renameSync(tmp,statusFile); }
+const writeStatus=statusWriter(statusFile,status);
 function record(obj) { if(noRecord)return;
   if (!capture.write(JSON.stringify(obj)+'\n') && capture.writableLength>16*1024*1024) throw Error('Capture disk cannot keep up');
 }
@@ -126,6 +127,6 @@ server.listen(port,'127.0.0.1',()=>{
   record({record_type:'capture_start',source:'live-connector-or-test-client',session_id:runId,started,mapping_source:schema.source});writeStatus();
   console.log('READY TLS 127.0.0.1:'+port+' -> UDP 127.0.0.1:'+udpPort+'; '+captureFile);
   timer=setInterval(()=>{writeStatus();console.log('events='+status.events+' XYZ='+status.valid_acceleration_frames+' errors='+status.decode_errors);},5000);
-  durationTimer=setTimeout(()=>stop('duration elapsed'),duration*1000);
+  if(duration>0)durationTimer=setTimeout(()=>stop('duration elapsed'),duration*1000);
 });
 process.on('SIGINT',()=>stop('SIGINT'));process.on('SIGTERM',()=>stop('SIGTERM'));

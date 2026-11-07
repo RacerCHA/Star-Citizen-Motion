@@ -32,7 +32,7 @@ sealed class TrayContext : ApplicationContext {
     readonly NotifyIcon tray;readonly System.Windows.Forms.Timer timer;readonly Form window;
     readonly Label stateLabel,detailLabel,mozaLabel;readonly Button simButton,mozaButton;
     readonly ToolStripMenuItem simItem,mozaItem,stateItem;
-    readonly List<Process> workers=new List<Process>();readonly object logLock=new object();
+    readonly List<OwnedWorker> workers=new List<OwnedWorker>();readonly object logLock=new object();
     readonly Dictionary<string,EventWaitHandle> signals=new Dictionary<string,EventWaitHandle>();
     Dictionary<string,object> settings;Process mozaHost;
     bool running,simEnabled,mozaEnabled,exiting;string lastError="",mozaError="";
@@ -43,7 +43,7 @@ sealed class TrayContext : ApplicationContext {
     string Setting(string key,string fallback){object v;return settings.TryGetValue(key,out v)?Convert.ToString(v,System.Globalization.CultureInfo.InvariantCulture):fallback;}
     public static void Check(string root){
         var s=Settings(root);string cert=P(root,Convert.ToString(s["CertificateDirectory"]));
-        foreach(string f in new[]{P(root,Convert.ToString(s["NodePath"])),Path.Combine(root,"bridge.mjs"),Path.Combine(root,"moza-packet.mjs"),Path.Combine(root,"receiver","receiver.mjs"),Path.Combine(root,"StarCitizen.simdef"),Path.Combine(cert,"lm.crt"),Path.Combine(cert,"lm.key")})
+        foreach(string f in new[]{P(root,Convert.ToString(s["NodePath"])),Path.Combine(root,"bridge.mjs"),Path.Combine(root,"moza-packet.mjs"),Path.Combine(root,"status-file.mjs"),Path.Combine(root,"receiver","receiver.mjs"),Path.Combine(root,"StarCitizen.simdef"),Path.Combine(cert,"lm.crt"),Path.Combine(cert,"lm.key")})
             if(!File.Exists(f))throw new FileNotFoundException("Не найден файл: "+f);
     }
     Button MakeButton(string text,int x,int y,int width,EventHandler click){var b=new Button{Text=text,Location=new Point(x,y),Size=new Size(width,38),ForeColor=Color.White,BackColor=Color.FromArgb(35,63,100),FlatStyle=FlatStyle.Flat};b.Click+=click;return b;}
@@ -59,7 +59,7 @@ sealed class TrayContext : ApplicationContext {
         menu.Items.Add("Папка пресета MOZA",null,(s,e)=>OpenFolder(Path.Combine(root,"presets")));
         menu.Items.Add("Открыть папку приложения",null,(s,e)=>OpenFolder(root));menu.Items.Add(new ToolStripSeparator());menu.Items.Add("Выход",null,(s,e)=>ExitThread());
         tray=new NotifyIcon{Icon=new Icon(Path.Combine(root,"StarCitizenTelemetry.ico")),Text="Star Citizen Motion",ContextMenuStrip=menu,Visible=true};tray.DoubleClick+=(s,e)=>ShowWindow();
-        window=new Form{Text="Star Citizen Motion 0.2 — SimHub / MOZA",ClientSize=new Size(620,458),FormBorderStyle=FormBorderStyle.FixedDialog,MaximizeBox=false,StartPosition=FormStartPosition.CenterScreen,Icon=tray.Icon,BackColor=Color.FromArgb(19,27,43),ForeColor=Color.White,Font=new Font("Segoe UI",10)};
+        window=new Form{Text="Star Citizen Motion 0.2.1 — SimHub / MOZA",ClientSize=new Size(620,458),FormBorderStyle=FormBorderStyle.FixedDialog,MaximizeBox=false,StartPosition=FormStartPosition.CenterScreen,Icon=tray.Icon,BackColor=Color.FromArgb(19,27,43),ForeColor=Color.White,Font=new Font("Segoe UI",10)};
         var title=new Label{Text="STAR CITIZEN MOTION",Location=new Point(24,19),Size=new Size(570,32),Font=new Font("Segoe UI",18,FontStyle.Bold)};
         stateLabel=new Label{Text="Подготовка…",Location=new Point(26,65),Size=new Size(570,27),Font=new Font("Segoe UI",12,FontStyle.Bold),ForeColor=Color.FromArgb(86,180,255)};
         detailLabel=new Label{Location=new Point(26,101),Size=new Size(570,116)};
@@ -72,7 +72,7 @@ sealed class TrayContext : ApplicationContext {
         if(autoStart)SetSim(true);else Refresh();if(show)ShowWindow();
     }
     void ShowWindow(){window.Show();window.WindowState=FormWindowState.Normal;window.Activate();}
-    void Log(string s){lock(logLock)File.AppendAllText(Path.Combine(run,"app.log"),DateTime.UtcNow.ToString("o")+" "+s+Environment.NewLine);}
+    void Log(string s){lock(logLock)try{File.AppendAllText(Path.Combine(run,"app.log"),DateTime.UtcNow.ToString("o")+" "+s+Environment.NewLine);}catch(IOException){}catch(UnauthorizedAccessException){}}
     void WriteControl(){string f=Path.Combine(run,"control.json"),temp=f+".tmp";File.WriteAllText(temp,json.Serialize(new{simhub=simEnabled,moza=mozaEnabled}));if(File.Exists(f))File.Replace(temp,f,null);else File.Move(temp,f);}
     Process Worker(string exe,string args,string name){
         var p=new Process{StartInfo=new ProcessStartInfo(exe,args){WorkingDirectory=root,UseShellExecute=false,CreateNoWindow=true,WindowStyle=ProcessWindowStyle.Hidden,RedirectStandardOutput=true,RedirectStandardError=true}};
@@ -85,10 +85,14 @@ sealed class TrayContext : ApplicationContext {
             var tcp=new TcpListener(IPAddress.Loopback,61666);try{tcp.Start();}finally{tcp.Stop();}
             using(var udp=new Socket(AddressFamily.InterNetwork,SocketType.Dgram,ProtocolType.Udp)){udp.ExclusiveAddressUse=true;udp.Bind(new IPEndPoint(IPAddress.Loopback,56061));}
             WriteControl();lastError="";previousFrames=0;rate=0;started=previousSample=DateTime.UtcNow;
-            workers.Add(Worker(P(root,Setting("NodePath","")),Q(Path.Combine(root,"bridge.mjs"))+" --duration 86400 --control-file "+Q(Path.Combine(run,"control.json"))+" --moza-udp-port "+Setting("MozaUdpPort","56063")+" --moza-ship-speed "+Setting("MozaShipSpeedScale","650")+" --moza-dcs-speed "+Setting("MozaDcsSpeedScale","231.5"),"bridge"));
-            workers.Add(Worker(P(root,Setting("NodePath","")),Q(Path.Combine(root,"receiver","receiver.mjs"))+" --duration 86400 --no-record --cert-dir "+Q(P(root,Setting("CertificateDirectory","runtime\\cert")))+" --out "+Q(Path.Combine(run,"receiver")),"receiver"));
+            AddCoreWorker("bridge",Q(Path.Combine(root,"bridge.mjs"))+" --duration 0 --control-file "+Q(Path.Combine(run,"control.json"))+" --moza-udp-port "+Setting("MozaUdpPort","56063")+" --moza-ship-speed "+Setting("MozaShipSpeedScale","650")+" --moza-dcs-speed "+Setting("MozaDcsSpeedScale","231.5"));
+            AddCoreWorker("receiver",Q(Path.Combine(root,"receiver","receiver.mjs"))+" --duration 0 --no-record --cert-dir "+Q(P(root,Setting("CertificateDirectory","runtime\\cert")))+" --out "+Q(Path.Combine(run,"receiver")));
             running=true;Log("Shared capture started; no full stream recording.");return true;
         }catch(Exception e){lastError=e.Message;StopWorkers();running=false;simEnabled=mozaEnabled=false;WriteControl();Log(lastError);return false;}
+    }
+    void AddCoreWorker(string name,string args){
+        string node=P(root,Setting("NodePath",""));
+        var worker=new OwnedWorker(name,()=>Worker(node,args,name),Log);workers.Add(worker);worker.Start();
     }
     void SetSim(bool enabled){simEnabled=enabled;if(enabled&&!StartCore())simEnabled=false;WriteControl();Refresh();}
     void SetMoza(bool enabled){
@@ -107,7 +111,7 @@ sealed class TrayContext : ApplicationContext {
         mozaEnabled=false;WriteControl();
         if(mozaHost!=null){try{if(!mozaHost.HasExited){try{using(var signal=EventWaitHandle.OpenExisting("Local\\CHA.SC.MOZA.stop."+mozaHost.Id))signal.Set();}catch(WaitHandleCannotBeOpenedException){}if(!mozaHost.WaitForExit(800)){mozaHost.Kill();mozaHost.WaitForExit(500);}}}catch(Exception e){Log(e.Message);}mozaHost.Dispose();mozaHost=null;}
     }
-    void StopWorkers(){foreach(var p in workers){try{if(!p.HasExited){p.Kill();p.WaitForExit(1200);}}catch(Exception e){Log(e.Message);}p.Dispose();}workers.Clear();}
+    void StopWorkers(){foreach(var p in workers)p.Dispose();workers.Clear();}
     void Stop(){simEnabled=false;StopMoza();StopWorkers();running=false;rate=0;WriteControl();Log("All outputs stopped.");Refresh();}
     void OpenFolder(string path){try{Process.Start(new ProcessStartInfo(path){UseShellExecute=true});}catch(Exception e){MessageBox.Show(e.Message);}}
     void OpenApp(string key,string fallback){try{Process.Start(new ProcessStartInfo(P(root,Setting(key,fallback))){UseShellExecute=true});}catch(Exception e){MessageBox.Show(e.Message);}}
@@ -116,9 +120,10 @@ sealed class TrayContext : ApplicationContext {
         if(signals["simhub-on"].WaitOne(0))SetSim(true);if(signals["simhub-off"].WaitOne(0))SetSim(false);
         if(signals["moza-on"].WaitOne(0))SetMoza(true);if(signals["moza-off"].WaitOne(0))SetMoza(false);Refresh();
     }
-    Dictionary<string,object> Read(string file){return json.Deserialize<Dictionary<string,object>>(File.ReadAllText(Path.Combine(run,file)));}
+    Dictionary<string,object> Read(string file){return json.Deserialize<Dictionary<string,object>>(RuntimeFiles.ReadText(Path.Combine(run,file)));}
     void Refresh(){
-        if(running){bool failed=false;foreach(var p in workers)if(p.HasExited)failed=true;if(failed){lastError="Приёмник завершился. См. runtime\\app.log";simEnabled=false;StopMoza();StopWorkers();running=false;}}
+        string recovery="";int restarts=0;
+        if(running)foreach(var worker in workers){worker.Poll(DateTime.UtcNow);restarts+=worker.Restarts;if(worker.Error.Length>0)recovery=worker.Error;}
         if(mozaHost!=null&&mozaHost.HasExited){mozaError="DCS-мост завершился. См. runtime\\moza-status.json";try{var m=Read("moza-status.json");if(m.ContainsKey("error"))mozaError=Convert.ToString(m["error"]);}catch{}StopMoza();}
         string state=running?"Ожидание телеметрии игры":"Приём остановлен",ship="—",values="—",mozaState="MOZA выключена";long frames=0,sent=0,errors=0,mozaSent=0;bool receiving=false,connected=false;
         if(lastError.Length>0)state="Ошибка приёма";
@@ -134,12 +139,14 @@ sealed class TrayContext : ApplicationContext {
         }catch{}
         if(mozaEnabled){mozaState="MOZA: ожидание пилота / Cockpit";try{var m=Read("moza-status.json");if(DateTime.Parse(Convert.ToString(m["updated_at"])).ToUniversalTime()>=mozaStarted.AddSeconds(-1)){connected=Convert.ToBoolean(m["connected"]);mozaSent=Convert.ToInt64(m["sent"]);mozaState=connected?"MOZA подключена • кадров TCP: "+mozaSent:Convert.ToBoolean(m["active"])?"MOZA: поток готов, ожидание Cockpit":"MOZA: ожидание пилота / свежих данных";}}catch{}}
         if(mozaError.Length>0)mozaState="MOZA: "+mozaError;
+        if(recovery.Length>0){state="Восстановление подключения";receiving=false;rate=0;}
         stateLabel.Text=state;stateItem.Text=state;tray.Text="SC | SimHub "+(simEnabled?"ON":"OFF")+" | MOZA "+(mozaEnabled?"ON":"OFF");
         detailLabel.Text=lastError.Length>0?lastError:String.Format("Корабль: {0}\r\nПоток: {1:F0} Гц   •   кадров: {2:N0}\r\n{3}\r\nSimHub: {4:N0} пакетов   •   ошибок: {5}",ship,rate,frames,values,sent,errors);
+        if(recovery.Length>0)detailLabel.Text="Рабочий процесс перезапускается автоматически.\r\n"+recovery+"\r\nПодробности: runtime\\app.log";
         simButton.Text=simItem.Text=simEnabled?"SimHub: ВКЛ — выключить":"SimHub: ВЫКЛ — включить";
         mozaButton.Text=mozaItem.Text=mozaEnabled?"MOZA: ВКЛ — выключить":"MOZA: ВЫКЛ — включить";
         mozaLabel.Text=mozaState+"\r\nTCP "+Setting("MozaTcpPort","3476")+" • DCS.exe запускается и закрывается этой кнопкой.\r\nВыключение выхода сохраняет подключение игры.";
-        try{File.WriteAllText(Path.Combine(run,"app-status.json"),json.Serialize(new{pid=Process.GetCurrentProcess().Id,running=running,simhub_enabled=simEnabled,moza_enabled=mozaEnabled,moza_connected=connected,receiving=receiving,state=state,sent=sent,rate_hz=rate,errors=errors,last_error=lastError,moza_error=mozaError,updated_at=DateTime.UtcNow.ToString("o")}));}catch(IOException){}
+        RuntimeFiles.TryWriteSnapshot(Path.Combine(run,"app-status.json"),json.Serialize(new{pid=Process.GetCurrentProcess().Id,running=running,simhub_enabled=simEnabled,moza_enabled=mozaEnabled,moza_connected=connected,receiving=receiving,state=state,sent=sent,rate_hz=rate,errors=errors,last_error=lastError,recovery=recovery,restarts=restarts,moza_error=mozaError,updated_at=DateTime.UtcNow.ToString("o")}));
     }
     protected override void ExitThreadCore(){exiting=true;timer.Stop();Stop();tray.Visible=false;tray.Dispose();window.Dispose();timer.Dispose();foreach(var s in signals.Values)s.Dispose();base.ExitThreadCore();}
 }

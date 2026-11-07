@@ -8,13 +8,14 @@ import {performance} from 'node:perf_hooks';
 import {setTimeout as delay} from 'node:timers/promises';
 import {SimHubEncoder} from './simhub-packet.mjs';
 import {MozaEncoder} from './moza-packet.mjs';
+import {statusWriter} from './status-file.mjs';
 const root=path.dirname(fileURLToPath(import.meta.url));
 const option=(n,d)=>{const i=process.argv.indexOf('--'+n);return i<0?d:process.argv[i+1];};
 const replay=option('replay',null),duration=Number(option('duration','86400'));
 const inputPort=Number(option('input-port','56061')),outputPort=Number(option('output-port','56062'));
 const mozaPort=Number(option('moza-udp-port','56063')),controlFile=option('control-file',null);
 if(![inputPort,outputPort,mozaPort].every(p=>Number.isInteger(p)&&p>0&&p<65536)||new Set([inputPort,outputPort,mozaPort]).size!==3)throw Error('Invalid ports');
-if(!Number.isFinite(duration)||duration<=0)throw Error('Invalid duration');
+if(!Number.isFinite(duration)||duration<0)throw Error('Invalid duration');
 const def=JSON.parse(fs.readFileSync(path.join(root,'StarCitizen.simdef'),'utf8'));
 const encoder=new SimHubEncoder(def,{replay:!!replay}),sender=dgram.createSocket('udp4');
 const moza=new MozaEncoder({shipSpeedScale:Number(option('moza-ship-speed','650')),dcsSpeedScale:Number(option('moza-dcs-speed','231.5'))});
@@ -41,7 +42,7 @@ function sendMoza(now=performance.now()){
   sender.send(Buffer.from(JSON.stringify({active:packet.active,frame:packet.frame,valid_until_ms:packet.valid_until_ms})),mozaPort,'127.0.0.1',error=>{if(error){status.errors++;status.last_error=error.message;}else mozaSent++;});
   mozaLastSent=now;
 }
-function save(){const temp=statusPath+'.tmp';fs.writeFileSync(temp,JSON.stringify(status,null,2));fs.renameSync(temp,statusPath);}
+const save=statusWriter(statusPath,status);
 function ingest(e){
   status.received++;
   const now=performance.now();
@@ -55,7 +56,7 @@ function ingest(e){
 function stop(reason){if(stopping)return;stopping=true;clearInterval(timer);clearInterval(controlTimer);clearTimeout(deadline);receiver?.close();
  status.stopped=true;status.stop_reason=reason;status.stopped_at=new Date().toISOString();save();sender.close();console.log(reason);}
 sender.on('error',e=>{status.errors++;status.last_error=e.message;save();});sender.bind(0,'127.0.0.1');
-timer=setInterval(save,1000);deadline=setTimeout(()=>stop('duration elapsed'),duration*1000);
+timer=setInterval(save,1000);if(duration>0)deadline=setTimeout(()=>stop('duration elapsed'),duration*1000);
 const controlTimer=setInterval(()=>{readControls();status.outputs={...controls};if(controls.moza&&performance.now()-mozaLastSent>=100)sendMoza();},50);
 process.on('SIGINT',()=>stop('SIGINT'));process.on('SIGTERM',()=>stop('SIGTERM'));
 save();
