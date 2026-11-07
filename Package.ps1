@@ -11,6 +11,7 @@ $stage=Join-Path $dist ('stage-'+[Guid]::NewGuid().ToString('N'))
 $files=@('StarCitizenTelemetry.exe','StarCitizenTelemetry.ico','TrayApp.cs','AssemblyInfo.cs','bridge.mjs','simhub-packet.mjs','StarCitizen.simdef','SimHub-generated-contract.cs','settings.example.json','Build.ps1','Build.cmd','Package.ps1','Prepare-Certificate.cmd','New-LocalCertificate.ps1','Apply-DBox.ps1','Setup-DBox.cmd','Rollback-DBox.cmd','VERSION','README.md','CHANGELOG.md','THIRD-PARTY-NOTICES.md','LICENSE','docs\telemetry.md','docs\development.md','tests\encoder.mjs','tests\receiver.mjs','tests\installer.ps1','receiver\receiver.mjs','receiver\protobuf.mjs','receiver\wire.mjs','receiver\motion-schema.json','upstream\motion_schema.py')
 $files+=@('DcsHost.cs','DCS World\bin\DCS.exe','moza-packet.mjs','presets\StarCitizen-AB9-v0.2.preset','presets\StarCitizen-AB9-v0.3-Soft.preset','presets\StarCitizen-AB9-Combat-3.preset','docs\moza.md','tests\moza-encoder.mjs','tests\moza-host.mjs','tests\outputs.mjs','tests\flight-audit.mjs')
 $files+=@('status-file.mjs','RuntimeFiles.cs','OwnedWorker.cs','tests\file-lock.mjs','tests\recovery.mjs','tests\worker-recovery.cs','tests\worker-recovery.ps1')
+$files+=@('docs\releases\v0.2.1.md')
 foreach($relative in $files){
     $source=Join-Path $PSScriptRoot $relative
     $target=Join-Path $stage $relative
